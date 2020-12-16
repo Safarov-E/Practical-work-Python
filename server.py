@@ -11,6 +11,10 @@ while True:
     c, a = server.accept()
     data = c.recv(4096)
     print("Получили от клиента:", data)
-    data = int(data.decode("UTF-8")) * 2
+    if data.decode("UTF-8") == 'exit':
+        print("Exit")
+        exit(0)
+    else:
+        data = int(data.decode("UTF-8")) * 2
     c.send(bytes(str(data), encoding="UTF-8"))
     c.close()
