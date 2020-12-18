@@ -1,4 +1,4 @@
-import cgi, html
+import cgi, http.cookies, html, hashlib, os
 r = cgi.FieldStorage()
 
 login = html.escape(r.getvalue("login", "")).strip()
@@ -6,15 +6,29 @@ password = html.escape(r.getvalue("password", "")).strip()
 
 flag = True
 maessage = ''
+cookie = http.cookies.SimpleCookie(os.environ.get("HTTP_COOKIE"))
 
-if login == '' or password == '':
+if login == '' and password == '':
     maessage = ''
 elif login != 'Admin' or password != '123':
     maessage = "<p style='color: red;'>Неверные логин и/или пароль</p>"
-else:
-    flag = False
-    maessage = "<p style='color: green;'> Здравствуйте " + login + "!<p>"
 
+if login == 'Admin' and password == '123':
+    flag = False
+    print("Set-cookie: login="+login)
+    print("Set-cookie: password="+ hashlib.md5(password.encode()).hexdigest())
+    maessage = "<p style='color: green;'> Здравствуйте " + login + "!<p>" + "<a href='?logout=1'>Выйти</a>"
+elif cookie.get('login').value == 'Admin' or cookie.get('password').value == hashlib.md5('123'.encode()).hexdigest():
+    flag = False
+    maessage = "<p style='color: green;'> Здравствуйте " + cookie.get('login').value + "!<p>" + "<a href='?logout=1'>Выйти</a>"
+else:
+    flag = True
+
+if r.getvalue('logout') == '1':
+    flag = True
+    maessage = ''
+    print("Set-cookie: login="+'')
+    print("Set-cookie: password="+'')
 
 print("Content-type: text/html; charset='utf-8'")
 print()
