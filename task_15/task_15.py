@@ -11,4 +11,17 @@ def zip(path, zpath):
                 zfile.write(root+ "/" +file)
     zfile.close()
 
+def unzip(path, zpath):
+    zfile = ZipFile(zpath, 'r')
+    for name in zfile.namelist():
+        dir, file = os.path.split(name)
+        if not os.path.exists(path + '/' + dir):
+            os.mkdir(path + '/' + dir)
+        if file:
+            handler = open(path + '/' + name, "wb")
+            handler.write(zfile.read(name))
+            handler.close()
+    zfile.close()
+
 zip("images/", "my.zip")
+unzip("abc", "my.zip")
